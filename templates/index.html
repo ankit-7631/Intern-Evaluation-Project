@@ -5,256 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fantasy Cricket Predictor</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
 
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+        .container { width: 100%; max-width: 950px; background: #1e293b; border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #334155; }
+        h1 { text-align: center; color: #38bdf8; margin-bottom: 4px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem; }
+        
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+        
+        .form-section { background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 6px; color: #cbd5e1; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+        input, select { width: 100%; padding: 10px 12px; background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: #ffffff; font-size: 0.9rem; outline: none; }
+        select option { background: #0f172a; color: #f8fafc; }
+        
+        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #0284c7, #0d9488); border: none; border-radius: 8px; color: white; font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-submit:hover { opacity: 0.9; }
 
-        /* CUSTOM ACCENT SCROLLBARS */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
+        .result-card { background: #0f172a; border-radius: 12px; padding: 20px; border: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between; }
+        .result-header { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 12px; }
+        .result-header h2 { color: #38bdf8; font-size: 1.2rem; }
+        .result-header p { color: #94a3b8; font-size: 0.8rem; }
 
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-            border-radius: 4px;
-        }
+        /* MULTI-METRIC PERFORMANCE HIGHLIGHT CARD */
+        .combo-stats-box { background: #1e293b; border: 1px solid #0284c7; border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; }
+        .combo-title { font-size: 0.75rem; color: #38bdf8; text-transform: uppercase; font-weight: bold; margin-bottom: 8px; }
+        .combo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .stat-item { background: #0f172a; padding: 6px 4px; border-radius: 6px; border: 1px solid #334155; }
+        .stat-item span { display: block; color: #94a3b8; font-size: 0.65rem; text-transform: uppercase; }
+        .stat-item strong { color: #38bdf8; font-size: 0.95rem; }
 
-        ::-webkit-scrollbar-thumb {
-            background: #0284c7;
-            border-radius: 4px;
-        }
+        .metric-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
+        .metric-label { color: #94a3b8; }
+        .metric-val { color: #f1f5f9; font-weight: bold; }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #38bdf8;
-        }
+        .score-box { text-align: center; background: #1e293b; padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid #38bdf8; }
+        .score-number { font-size: 1.8rem; font-weight: bold; color: #4ade80; }
+        .tier-badge { display: inline-block; margin-top: 4px; padding: 4px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; background: #0284c7; color: white; }
 
-        .container {
-            width: 100%;
-            max-width: 950px;
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            border: 1px solid #334155;
-            max-height: 92vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        h1 {
-            text-align: center;
-            color: #38bdf8;
-            margin-bottom: 4px;
-            font-size: 1.8rem;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #94a3b8;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .grid-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .form-section {
-            background: #0f172a;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #334155;
-            max-height: 460px;
-            overflow-y: auto;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #cbd5e1;
-            font-weight: 600;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px 12px;
-            background: #1e293b;
-            border: 1px solid #475569;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus {
-            border-color: #38bdf8;
-        }
-
-        /* SCROLLABLE SELECT DROPDOWNS */
-        select option {
-            background: #0f172a;
-            color: #f8fafc;
-            padding: 8px;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #0284c7, #0d9488);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 0.95rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover {
-            opacity: 0.9;
-        }
-
-        .result-card {
-            background: #0f172a;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #334155;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            max-height: 460px;
-            overflow-y: auto;
-        }
-
-        .result-header {
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-            margin-bottom: 12px;
-        }
-
-        .result-header h2 {
-            color: #38bdf8;
-            font-size: 1.2rem;
-        }
-
-        .result-header p {
-            color: #94a3b8;
-            font-size: 0.8rem;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-
-        .metric-label {
-            color: #94a3b8;
-        }
-
-        .metric-val {
-            color: #f1f5f9;
-            font-weight: bold;
-        }
-
-        .score-box {
-            text-align: center;
-            background: #1e293b;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            border: 1px solid #38bdf8;
-        }
-
-        .score-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #4ade80;
-        }
-
-        .tier-badge {
-            display: inline-block;
-            margin-top: 4px;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            background: #0284c7;
-            color: white;
-        }
-
-        .history-section {
-            margin-top: 18px;
-            background: #0f172a;
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid #334155;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-
-        .history-title {
-            font-size: 0.8rem;
-            color: #38bdf8;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            padding: 4px 0;
-            border-bottom: 1px solid #1e293b;
-        }
+        .history-section { margin-top: 18px; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid #334155; max-height: 120px; overflow-y: auto; }
+        .history-title { font-size: 0.8rem; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px; }
+        .history-item { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 4px 0; border-bottom: 1px solid #1e293b; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Fantasy Cricket Predictor</h1>
-    <p class="subtitle">XGBoost ML Performance Engine (Batting + Bowling)</p>
+    <p class="subtitle">Matchup Performance & Prediction Engine</p>
 
     <div class="grid-layout">
-        <!-- Input Form Section -->
         <div class="form-section">
             <form id="predictorForm" onsubmit="handlePredict(event)">
                 <div class="form-group">
                     <label for="playerName">Player Name</label>
-                    <input type="text" id="playerName" placeholder="e.g. J Bumrah or V Kohli" required>
+                    <input type="text" id="playerName" placeholder="e.g. V Kohli or J Bumrah" required>
                 </div>
 
-                <!-- Scrollable Team Selector -->
                 <div class="form-group">
                     <label for="playerTeam">Player's Team</label>
                     <select id="playerTeam" required>
@@ -272,7 +85,6 @@
                     </select>
                 </div>
 
-                <!-- Scrollable Opposition Selector -->
                 <div class="form-group">
                     <label for="oppTeam">Opposition Team</label>
                     <select id="oppTeam" required>
@@ -290,14 +102,13 @@
                     </select>
                 </div>
 
-                <!-- Scrollable Venue Selector -->
                 <div class="form-group">
                     <label for="venue">Match Venue</label>
                     <select id="venue" required>
                         <option value="" disabled selected>Select Venue...</option>
+                        <option value="MA Chidambaram Stadium">MA Chidambaram Stadium (Chennai)</option>
                         <option value="M Chinnaswamy Stadium">M Chinnaswamy Stadium (Bengaluru)</option>
                         <option value="Wankhede Stadium">Wankhede Stadium (Mumbai)</option>
-                        <option value="M.A. Chidambaram Stadium">M.A. Chidambaram Stadium (Chennai)</option>
                         <option value="Eden Gardens">Eden Gardens (Kolkata)</option>
                         <option value="Narendra Modi Stadium">Narendra Modi Stadium (Ahmedabad)</option>
                         <option value="Arun Jaitley Stadium">Arun Jaitley Stadium (Delhi)</option>
@@ -312,7 +123,6 @@
             </form>
         </div>
 
-        <!-- Output Result Section -->
         <div class="result-card">
             <div>
                 <div class="result-header">
@@ -320,20 +130,39 @@
                     <p id="outMatchDetails">Submit parameters to query model.</p>
                 </div>
 
-                <div class="metric-row">
-                    <span class="metric-label">Combined Career Avg Pts:</span>
-                    <span class="metric-val" id="outCareer">0.0</span>
+                <!-- ENHANCED MATCHUP STATS BREAKDOWN -->
+                <div class="combo-stats-box">
+                    <div class="combo-title">Matchup Record at Venue vs Opposition</div>
+                    <div class="combo-grid">
+                        <div class="stat-item">
+                            <span>Played</span>
+                            <strong id="statMatches">0</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Runs (Avg)</span>
+                            <strong id="statRuns">0 (0.0)</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Strike Rate</span>
+                            <strong id="statSR">0.0</strong>
+                        </div>
+                        <div class="stat-item" style="grid-column: span 1.5;">
+                            <span>Wickets</span>
+                            <strong id="statWkts">0</strong>
+                        </div>
+                        <div class="stat-item" style="grid-column: span 1.5;">
+                            <span>Economy</span>
+                            <strong id="statEcon">0.00</strong>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="metric-row">
-                    <span class="metric-label">Combined Peak Potential:</span>
-                    <span class="metric-val" id="outPeak">0.0</span>
-                </div>
-                <div class="metric-row">
-                    <span class="metric-label">Head-to-Head Peak:</span>
+                    <span class="metric-label">Head-to-Head Peak Points:</span>
                     <span class="metric-val" id="outH2H">0.0</span>
                 </div>
                 <div class="metric-row">
-                    <span class="metric-label">Venue Peak:</span>
+                    <span class="metric-label">Venue Peak Points:</span>
                     <span class="metric-val" id="outVenue">0.0</span>
                 </div>
             </div>
@@ -346,7 +175,6 @@
         </div>
     </div>
 
-    <!-- Scrollable Query Log -->
     <div class="history-section">
         <div class="history-title">Recent Query Log</div>
         <div id="historyList">
@@ -372,31 +200,31 @@
             const response = await fetch('/predict', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    player_name: player,
-                    player_team: team,
-                    opp_team: opp,
-                    venue: venue
-                })
+                body: JSON.stringify({ player_name: player, player_team: team, opp_team: opp, venue: venue })
             });
 
             if (!response.ok) {
-                throw new Error(`Server returned status: ${response.status}`);
+                throw new Error(`Server status: ${response.status}`);
             }
 
             const res = await response.json();
 
-            // Update UI
-            document.getElementById('outPlayer').innerText = res.player_name;
-            document.getElementById('outMatchDetails').innerText = `${res.team} vs ${res.opp_team} | ${res.venue}`;
-            document.getElementById('outCareer').innerText = res.career_pts;
-            document.getElementById('outPeak').innerText = res.peak_pts;
-            document.getElementById('outH2H').innerText = res.h2h_pts;
-            document.getElementById('outVenue').innerText = res.venue_pts;
-            document.getElementById('outScore').innerText = `${res.projected_score} Pts`;
-            document.getElementById('outTier').innerText = res.tier;
+            document.getElementById('outPlayer').innerText = res.player_name || "---";
+            document.getElementById('outMatchDetails').innerText = `${res.team || ''} vs ${res.opp_team || ''} | ${res.venue || ''}`;
+            document.getElementById('outH2H').innerText = res.h2h_pts ?? 0.0;
+            document.getElementById('outVenue').innerText = res.venue_pts ?? 0.0;
+            document.getElementById('outScore').innerText = `${res.projected_score !== undefined ? res.projected_score : '--'} Pts`;
+            document.getElementById('outTier').innerText = res.tier || "No Tier";
 
-            // Update scrollable query log
+            if (res.stats) {
+                document.getElementById('statMatches').innerText = res.stats.matches ?? 0;
+                document.getElementById('statRuns').innerText = `${res.stats.runs ?? 0} (${res.stats.avg ?? 0.0})`;
+                document.getElementById('statSR').innerText = res.stats.sr ?? 0.0;
+                document.getElementById('statWkts').innerText = res.stats.wickets ?? 0;
+                document.getElementById('statEcon').innerText = res.stats.economy ?? 0.00;
+            }
+
+            // Update recent query log
             const historyList = document.getElementById('historyList');
             if (historyList.children[0] && historyList.children[0].innerText.includes('No recent')) {
                 historyList.innerHTML = '';
