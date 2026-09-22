@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Cricket Predictor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* CUSTOM ACCENT SCROLLBARS */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #0284c7;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 4px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            max-height: 460px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: #38bdf8;
+        }
+
+        /* SCROLLABLE SELECT DROPDOWNS */
+        select option {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 8px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #0284c7, #0d9488);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .result-card {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            max-height: 460px;
+            overflow-y: auto;
+        }
+
+        .result-header {
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .result-header h2 {
+            color: #38bdf8;
+            font-size: 1.2rem;
+        }
+
+        .result-header p {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .metric-label {
+            color: #94a3b8;
+        }
+
+        .metric-val {
+            color: #f1f5f9;
+            font-weight: bold;
+        }
+
+        .score-box {
+            text-align: center;
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 1px solid #38bdf8;
+        }
+
+        .score-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .tier-badge {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            background: #0284c7;
+            color: white;
+        }
+
+        .history-section {
+            margin-top: 18px;
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #334155;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            font-size: 0.8rem;
+            color: #38bdf8;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            padding: 4px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Fantasy Cricket Predictor</h1>
+    <p class="subtitle">XGBoost ML Performance Engine (Batting + Bowling)</p>
+
+    <div class="grid-layout">
+        <!-- Input Form Section -->
+        <div class="form-section">
+            <form id="predictorForm" onsubmit="handlePredict(event)">
+                <div class="form-group">
+                    <label for="playerName">Player Name</label>
+                    <input type="text" id="playerName" placeholder="e.g. J Bumrah or V Kohli" required>
+                </div>
+
+                <!-- Scrollable Team Selector -->
+                <div class="form-group">
+                    <label for="playerTeam">Player's Team</label>
+                    <select id="playerTeam" required>
+                        <option value="" disabled selected>Select Team...</option>
+                        <option value="Royal Challengers Bengaluru">Royal Challengers Bengaluru</option>
+                        <option value="Mumbai Indians">Mumbai Indians</option>
+                        <option value="Chennai Super Kings">Chennai Super Kings</option>
+                        <option value="Kolkata Knight Riders">Kolkata Knight Riders</option>
+                        <option value="Punjab Kings">Punjab Kings</option>
+                        <option value="Delhi Capitals">Delhi Capitals</option>
+                        <option value="Rajasthan Royals">Rajasthan Royals</option>
+                        <option value="Sunrisers Hyderabad">Sunrisers Hyderabad</option>
+                        <option value="Gujarat Titans">Gujarat Titans</option>
+                        <option value="Lucknow Super Giants">Lucknow Super Giants</option>
+                    </select>
+                </div>
+
+                <!-- Scrollable Opposition Selector -->
+                <div class="form-group">
+                    <label for="oppTeam">Opposition Team</label>
+                    <select id="oppTeam" required>
+                        <option value="" disabled selected>Select Opposition...</option>
+                        <option value="Chennai Super Kings">Chennai Super Kings</option>
+                        <option value="Mumbai Indians">Mumbai Indians</option>
+                        <option value="Royal Challengers Bengaluru">Royal Challengers Bengaluru</option>
+                        <option value="Punjab Kings">Punjab Kings</option>
+                        <option value="Kolkata Knight Riders">Kolkata Knight Riders</option>
+                        <option value="Delhi Capitals">Delhi Capitals</option>
+                        <option value="Rajasthan Royals">Rajasthan Royals</option>
+                        <option value="Sunrisers Hyderabad">Sunrisers Hyderabad</option>
+                        <option value="Gujarat Titans">Gujarat Titans</option>
+                        <option value="Lucknow Super Giants">Lucknow Super Giants</option>
+                    </select>
+                </div>
+
+                <!-- Scrollable Venue Selector -->
+                <div class="form-group">
+                    <label for="venue">Match Venue</label>
+                    <select id="venue" required>
+                        <option value="" disabled selected>Select Venue...</option>
+                        <option value="M Chinnaswamy Stadium">M Chinnaswamy Stadium (Bengaluru)</option>
+                        <option value="Wankhede Stadium">Wankhede Stadium (Mumbai)</option>
+                        <option value="M.A. Chidambaram Stadium">M.A. Chidambaram Stadium (Chennai)</option>
+                        <option value="Eden Gardens">Eden Gardens (Kolkata)</option>
+                        <option value="Narendra Modi Stadium">Narendra Modi Stadium (Ahmedabad)</option>
+                        <option value="Arun Jaitley Stadium">Arun Jaitley Stadium (Delhi)</option>
+                        <option value="Rajiv Gandhi International Stadium">Rajiv Gandhi Stadium (Hyderabad)</option>
+                        <option value="Punjab Cricket Association Stadium">PCA Stadium (Mohali)</option>
+                        <option value="Sawai Mansingh Stadium">Sawai Mansingh Stadium (Jaipur)</option>
+                        <option value="Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium">Ekana Cricket Stadium (Lucknow)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">Generate Prediction</button>
+            </form>
+        </div>
+
+        <!-- Output Result Section -->
+        <div class="result-card">
+            <div>
+                <div class="result-header">
+                    <h2 id="outPlayer">---</h2>
+                    <p id="outMatchDetails">Submit parameters to query model.</p>
+                </div>
+
+                <div class="metric-row">
+                    <span class="metric-label">Combined Career Avg Pts:</span>
+                    <span class="metric-val" id="outCareer">0.0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Combined Peak Potential:</span>
+                    <span class="metric-val" id="outPeak">0.0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Head-to-Head Peak:</span>
+                    <span class="metric-val" id="outH2H">0.0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Venue Peak:</span>
+                    <span class="metric-val" id="outVenue">0.0</span>
+                </div>
+            </div>
+
+            <div class="score-box">
+                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Projected Total Score</div>
+                <div class="score-number" id="outScore">--</div>
+                <div class="tier-badge" id="outTier">Awaiting Input</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scrollable Query Log -->
+    <div class="history-section">
+        <div class="history-title">Recent Query Log</div>
+        <div id="historyList">
+            <div class="history-item" style="color: #64748b;">No recent queries submitted yet.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function handlePredict(event) {
+        event.preventDefault();
+
+        const btn = document.querySelector('.btn-submit');
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+
+        const player = document.getElementById('playerName').value;
+        const team = document.getElementById('playerTeam').value;
+        const opp = document.getElementById('oppTeam').value;
+        const venue = document.getElementById('venue').value;
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    player_name: player,
+                    player_team: team,
+                    opp_team: opp,
+                    venue: venue
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned status: ${response.status}`);
+            }
+
+            const res = await response.json();
+
+            // Update UI
+            document.getElementById('outPlayer').innerText = res.player_name;
+            document.getElementById('outMatchDetails').innerText = `${res.team} vs ${res.opp_team} | ${res.venue}`;
+            document.getElementById('outCareer').innerText = res.career_pts;
+            document.getElementById('outPeak').innerText = res.peak_pts;
+            document.getElementById('outH2H').innerText = res.h2h_pts;
+            document.getElementById('outVenue').innerText = res.venue_pts;
+            document.getElementById('outScore').innerText = `${res.projected_score} Pts`;
+            document.getElementById('outTier').innerText = res.tier;
+
+            // Update scrollable query log
+            const historyList = document.getElementById('historyList');
+            if (historyList.children[0] && historyList.children[0].innerText.includes('No recent')) {
+                historyList.innerHTML = '';
+            }
+
+            const newItem = document.createElement('div');
+            newItem.className = 'history-item';
+            newItem.innerHTML = `<span><strong>${res.player_name}</strong> vs ${res.opp_team}</span> <span>${res.projected_score} Pts</span>`;
+            historyList.prepend(newItem);
+
+        } catch (error) {
+            console.error("Prediction Error:", error);
+            alert("Error generating prediction. Please verify your Python backend server is running.");
+        } finally {
+            btn.innerText = "Generate Prediction";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
