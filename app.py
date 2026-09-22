@@ -4,6 +4,23 @@ import joblib
 import pandas as pd
 from flask import Flask, render_template, request, jsonify
 
+
+import os
+import joblib
+
+# Resolve exact absolute directory path on Vercel
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'model.pkl')
+
+try:
+    artifacts = joblib.load(MODEL_PATH)
+    model = artifacts['model']
+    player_logs = artifacts['player_logs']
+except Exception as e:
+    print(f"FAILED TO LOAD MODEL AT {MODEL_PATH}: {str(e)}")
+    model = None
+    player_logs = None
+
 warnings.filterwarnings('ignore')
 
 # Resolve absolute path for Vercel execution environment
