@@ -1,3 +1,4 @@
+import os
 import warnings
 import joblib
 import pandas as pd
@@ -5,37 +6,42 @@ from flask import Flask, render_template, request, jsonify
 
 warnings.filterwarnings('ignore')
 
-app = Flask(__name__)
+# Resolve absolute path for Vercel execution environment
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'model.pkl')
 
-# 1. Load Pre-trained Artifacts from PKL
-print("Loading PKL artifacts...")
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, 'templates'))
+
+# Load model artifacts
+print(f"Loading model from {MODEL_PATH}...")
 try:
-    artifacts = joblib.load('model.pkl')
+    artifacts = joblib.load(MODEL_PATH)
     model = artifacts['model']
     player_logs = artifacts['player_logs']
-    print("PKL Model loaded successfully!")
+    print("Model loaded successfully!")
 except Exception as e:
-    print(f"Error loading model.pkl: {e}")
+    print(f"Failed to load model: {e}")
+    model, player_logs = None, None
 
-# 2. Root Route (Serves templates/index.html)
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# 3. Prediction API Route with Validation Guards
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        if model is None or player_logs is None:
+            return jsonify({'error': 'Model artifacts failed to initialize.'}), 500
+
         data = request.get_json(force=True)
         player_name = data.get('player_name', '').strip()
         team_input = data.get('player_team', '').strip()
         opp_input = data.get('opp_team', '').strip()
         venue_input = data.get('venue', '').strip()
 
-        # Look up player in historical database
+        # Check player logs
         p_data = player_logs[player_logs['player_name'].str.contains(player_name, case=False, na=False, regex=False)]
         
-        # GUARD 1: Player not found in database at all
         if len(p_data) == 0:
             return jsonify({
                 'player_name': player_name.upper() if player_name else "UNKNOWN",
@@ -50,12 +56,11 @@ def predict():
                 'tier': "Invalid / Player Not Found"
             })
 
-        # GUARD 2: Check if player ever played for the selected team
+        # Check player team validity
         player_team_matches = p_data[p_data['team'].str.contains(team_input, case=False, na=False, regex=False)]
         if len(player_team_matches) == 0:
             career_pts = float(p_data['actual_fantasy_pts'].mean())
             peak_pts = float(p_data['actual_fantasy_pts'].max())
-            
             return jsonify({
                 'player_name': player_name.upper(),
                 'team': team_input,
@@ -69,12 +74,11 @@ def predict():
                 'tier': f"0.0 Points ({player_name.title()} never played for {team_input})"
             })
 
-        # GUARD 3: Check if player ever played against the selected opposition
+        # Check head-to-head opposition validity
         h2h_matches = p_data[p_data['opp_team'].str.contains(opp_input, case=False, na=False, regex=False)]
         if len(h2h_matches) == 0:
             career_pts = float(p_data['actual_fantasy_pts'].mean())
             peak_pts = float(p_data['actual_fantasy_pts'].max())
-            
             return jsonify({
                 'player_name': player_name.upper(),
                 'team': team_input,
@@ -88,7 +92,7 @@ def predict():
                 'tier': f"0.0 Points (Never played against {opp_input})"
             })
 
-        # VALID MATCHUP PROCESSING
+        # Perform prediction
         career_pts = float(p_data['actual_fantasy_pts'].mean())
         peak_pts = float(p_data['actual_fantasy_pts'].max())
         h2h_pts = float(h2h_matches['actual_fantasy_pts'].max())
@@ -104,12 +108,7 @@ def predict():
         }])
         
         raw_pred = float(model.predict(user_features)[0])
-        
-        if peak_pts > 50:
-            scaled_pred = raw_pred * (1.0 + ((peak_pts - 50) / 100))
-        else:
-            scaled_pred = raw_pred
-            
+        scaled_pred = raw_pred * (1.0 + ((peak_pts - 50) / 100)) if peak_pts > 50 else raw_pred
         final_score = max(10.0, scaled_pred)
 
         if final_score >= 70:
@@ -137,9 +136,5 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
-# Keep app.run inside the __main__ check so Vercel can handle WSGI serving
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
